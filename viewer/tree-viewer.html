@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Tree Viewer - GEDCOM</title>
+    <link rel="stylesheet" href="viewer.css?v=1758916510">
+    <script src="d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="viewer-container">
+        <!-- Header -->
+        <header class="tree-header">
+            <div class="header-left">
+                <h1 id="treeTitle">Family Tree</h1>
+                <div class="tree-info" id="treeInfo">
+                    <span id="rootPersonName">Loading...</span>
+                    <span class="separator">•</span>
+                    <span id="treeStats">0 individuals</span>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button id="zoomIn" class="control-btn" title="Zoom In">🔍+</button>
+                <button id="zoomOut" class="control-btn" title="Zoom Out">🔍-</button>
+                <button id="resetZoom" class="control-btn" title="Reset View">⌂</button>
+                <button id="exportTree" class="control-btn" title="Export as SVG">💾</button>
+                <button id="settingsBtn" class="control-btn" title="Settings">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Settings Panel - Cache Buster: 1758916926 -->
+        <div id="settingsPanel" class="settings-panel hidden">
+            <div class="settings-content">
+                <h3>Tree Settings</h3>
+
+                <div class="setting-group">
+                    <label>Root Person:</label>
+                    <div class="search-container">
+                        <input type="text" id="settingsSearchInput" placeholder="Search for person..." autocomplete="off">
+                        <button id="openSearchBtn" class="search-btn">🔍 Search</button>
+                    </div>
+                    <div class="current-root-info" id="currentRootInfo">
+                        <small id="currentRootName">Current: Loading...</small>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label for="generationsSlider">Generations: <span id="generationsValue">3</span></label>
+                    <input type="range" id="generationsSlider" min="1" max="10" value="3">
+                </div>
+
+                <div class="setting-group">
+                    <label>Layout:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="layout" value="vertical" checked> Vertical</label>
+                        <label><input type="radio" name="layout" value="horizontal"> Horizontal</label>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>Tree Type:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="treeType" value="ancestors" checked> Ancestors</label>
+                        <label><input type="radio" name="treeType" value="descendants"> Descendants</label>
+                        <label><input type="radio" name="treeType" value="both"> Both</label>
+                    </div>
+                </div>
+
+                <div class="setting-actions">
+                    <button id="applySettings" class="apply-btn">Apply Changes</button>
+                    <button id="closeSettings" class="cancel-btn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tree Container -->
+        <main class="tree-main">
+            <div id="treeContainer" class="tree-container">
+                <svg id="treeSvg" class="tree-svg">
+                    <defs>
+                        <filter id="dropshadow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+                        </filter>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7"
+                                refX="0" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+                        </marker>
+                        <clipPath id="nodeTextClip">
+                            <rect x="-95" y="-25" width="190" height="50" rx="6"/>
+                        </clipPath>
+                    </defs>
+                    <g id="treeGroup"></g>
+                </svg>
+
+                <!-- Loading indicator -->
+                <div id="loadingIndicator" class="loading-indicator">
+                    <div class="spinner"></div>
+                    <p>Loading family tree...</p>
+                </div>
+
+                <!-- Error display -->
+                <div id="errorDisplay" class="error-display hidden">
+                    <div class="error-icon">⚠️</div>
+                    <h3>Unable to load family tree</h3>
+                    <p id="errorMessage">Unknown error occurred</p>
+                    <button id="retryLoad" class="retry-btn">Try Again</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Person Details Tooltip -->
+        <div id="personTooltip" class="person-tooltip hidden">
+            <div class="tooltip-header">
+                <h4 id="tooltipName">Person Name</h4>
+                <span id="tooltipDates" class="tooltip-dates"></span>
+            </div>
+            <div class="tooltip-content">
+                <div id="tooltipBirth" class="tooltip-detail">
+                    <strong>Born:</strong> <span class="detail-value"></span>
+                </div>
+                <div id="tooltipDeath" class="tooltip-detail hidden">
+                    <strong>Died:</strong> <span class="detail-value"></span>
+                </div>
+                <div id="tooltipSpouses" class="tooltip-detail hidden">
+                    <strong>Spouse(s):</strong> <span class="detail-value"></span>
+                </div>
+                <div id="tooltipChildren" class="tooltip-detail hidden">
+                    <strong>Children:</strong> <span class="detail-value"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Person Details Modal -->
+        <div id="personDetailsModal" class="person-details-modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="detailsName">Person Name</h2>
+                    <button id="closeDetailsBtn" class="close-btn">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="person-summary">
+                        <div id="detailsLifespan" class="lifespan"></div>
+                        <div id="detailsGender" class="gender"></div>
+                    </div>
+
+                    <div class="details-section">
+                        <h3>Birth Information</h3>
+                        <div id="detailsBirth" class="detail-content">
+                            <div class="detail-item">
+                                <strong>Date:</strong> <span id="birthDate"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Place:</strong> <span id="birthPlace"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="details-section" id="deathSection">
+                        <h3>Death Information</h3>
+                        <div id="detailsDeath" class="detail-content">
+                            <div class="detail-item">
+                                <strong>Date:</strong> <span id="deathDate"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Place:</strong> <span id="deathPlace"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="details-section" id="spousesSection">
+                        <h3>Marriages</h3>
+                        <div id="detailsSpouses" class="detail-content">
+                            <!-- Spouse information will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="details-section" id="childrenSection">
+                        <h3>Children</h3>
+                        <div id="detailsChildren" class="detail-content">
+                            <!-- Children information will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="details-section" id="parentsSection">
+                        <h3>Parents</h3>
+                        <div id="detailsParents" class="detail-content">
+                            <!-- Parents information will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Person Search Modal -->
+        <div id="personSearchModal" class="person-search-modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Search for Person</h2>
+                    <button id="closeSearchBtn" class="close-btn">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="search-input-container">
+                        <input type="text" id="personSearchInput" placeholder="Search by name..." autocomplete="off">
+                        <div class="search-stats" id="searchStats">Enter name to search</div>
+                    </div>
+
+                    <div class="search-results" id="searchResults">
+                        <!-- Search results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load libraries and scripts -->
+    <script src="../lib/gedcom-parser.js"></script>
+    <script src="../lib/tree-builder.js"></script>
+    <script src="viewer.js?v=1758916510"></script>
+</body>
+</html>
