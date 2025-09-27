@@ -1,0 +1,23 @@
+# Files to exclude from Chrome Web Store package
+
+# Development files
+.git/
+.gitignore
+.claude/
+*.md
+README.md
+LICENSE
+
+# Test files  
+test-*.js
+debug-*.js
+blair-direct.ged
+gedcom_extension.md
+generate_icons.html
+
+# Store assets
+store-assets/
+
+# OS files
+.DS_Store
+Thumbs.db
