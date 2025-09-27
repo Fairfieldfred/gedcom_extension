@@ -232,7 +232,160 @@ Test the extension with various GEDCOM files to ensure compatibility:
 - Files with complex relationships and multiple marriages
 - Different character encodings and date formats
 
-## 📝 GEDCOM File Support
+## � Publishing to Chrome Web Store
+
+Ready to publish your extension? Here's the complete step-by-step process:
+
+### Step 1: Prepare for Publication
+
+1. **Final Testing Checklist**
+   ```bash
+   # Load as unpacked extension in chrome://extensions/
+   # Test with multiple GEDCOM files
+   # Verify all features work correctly
+   # Check responsive design on different screen sizes
+   # Test performance with large files
+   ```
+
+2. **Required Documents**
+   - Privacy Policy (required for all extensions)
+   - Store listing description and screenshots
+   - High-quality promotional images
+
+### Step 2: Create Chrome Web Store Developer Account
+
+1. **Register as Developer**
+   - Visit [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole/)
+   - Sign in with your Google account
+   - Pay the **$5 one-time registration fee**
+   - Complete identity verification process
+
+### Step 3: Package Your Extension
+
+1. **Create Clean Package**
+   ```bash
+   # Create package directory
+   mkdir gedcom_extension_package
+   
+   # Copy only necessary files
+   cp manifest.json gedcom_extension_package/
+   cp -r assets background lib popup viewer gedcom_extension_package/
+   
+   # Remove development/test files
+   rm gedcom_extension_package/lib/test-data.js
+   
+   # Create ZIP package
+   cd gedcom_extension_package
+   zip -r gedcom-family-tree-viewer.zip . -x "*.DS_Store"
+   ```
+
+2. **Package Requirements**
+   - Maximum size: 128 MB (your extension should be much smaller)
+   - Must contain `manifest.json` in root directory
+   - All files must be web-safe (no executable files)
+
+### Step 4: Create Store Listing
+
+1. **Required Information**
+   - **Extension Name**: "GEDCOM Family Tree Viewer"
+   - **Description**: Detailed description (see `store-assets/STORE_LISTING.md`)
+   - **Category**: Productivity
+   - **Language**: English (and any others you support)
+
+2. **Required Images** (create these in high quality)
+   - **Screenshots** (1280x800px): 
+     - Main tree visualization
+     - File upload interface
+     - Search and navigation features
+     - Customization options
+     - Large family tree example
+   
+   - **Store Icon** (128x128px): Use your `assets/icons/icon128.png`
+   
+   - **Promotional Images** (optional but recommended):
+     - Small tile: 440x280px
+     - Large tile: 920x680px
+     - Marquee: 1400x560px
+
+3. **Privacy Policy** (required)
+   ```
+   This extension processes GEDCOM files locally in your browser.
+   
+   Data Collection: We do not collect any personal information.
+   Data Usage: GEDCOM files are processed solely for visualization.
+   Data Storage: Files are stored locally using Chrome's storage API.
+   Data Sharing: No data is transmitted to external servers.
+   
+   Contact: your-email@domain.com
+   ```
+
+### Step 5: Submit for Review
+
+1. **Upload Package**
+   - Upload your `gedcom-family-tree-viewer.zip` file
+   - Chrome Web Store will automatically validate the package
+
+2. **Complete Store Listing**
+   - Add all required information and images
+   - Set pricing (free)
+   - Select target countries/regions
+   - Choose visibility (public/unlisted/private)
+
+3. **Review Process**
+   - **Initial Review**: Usually takes 1-3 days
+   - **Extended Review**: May take up to 7 days for new developers
+   - **Common Rejection Reasons**:
+     - Missing privacy policy
+     - Low-quality screenshots
+     - Incomplete store listing
+     - Code that violates Chrome Web Store policies
+
+### Step 6: Post-Publication
+
+1. **Monitor Reviews**
+   - Respond to user feedback
+   - Address reported bugs quickly
+   - Update store listing based on user feedback
+
+2. **Publishing Updates**
+   ```bash
+   # Increment version in manifest.json
+   "version": "1.0.4"
+   
+   # Create new package
+   zip -r gedcom-family-tree-viewer-v1.0.4.zip .
+   
+   # Upload to Chrome Web Store Developer Console
+   ```
+
+3. **Marketing Your Extension**
+   - Share on genealogy forums and communities
+   - Create documentation and tutorials
+   - Gather user testimonials
+   - Consider creating demo videos
+
+### Chrome Web Store Policies to Remember
+
+- **User Data**: Extensions must have a clear, legitimate purpose
+- **Permissions**: Only request permissions your extension actually uses
+- **Privacy**: Must have a privacy policy if you handle user data
+- **Quality**: Must provide a high-quality user experience
+- **Spam**: Don't create multiple similar extensions
+
+### Estimated Timeline
+
+- **Preparation**: 1-2 days (screenshots, descriptions, testing)
+- **Submission**: 30 minutes
+- **Review**: 1-7 days
+- **Total**: 3-10 days from start to published
+
+### Costs
+
+- **Developer Registration**: $5 (one-time)
+- **Publishing**: Free
+- **Maintenance**: Time for updates and support
+
+## �📝 GEDCOM File Support
 
 ### Supported GEDCOM Tags
 

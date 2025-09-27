@@ -3,15 +3,17 @@
 ## Required Images (create these in store-assets folder):
 
 ### Screenshots (1280x800 or 640x400 pixels):
+
 - screenshot1.png: Main tree visualization
-- screenshot2.png: Upload interface  
+- screenshot2.png: Upload interface
 - screenshot3.png: Search and navigation features
 - screenshot4.png: Tree customization options
 - screenshot5.png: Large family tree example
 
 ### Promotional Images:
+
 - promo-tile-small.png: 440x280 pixels - Small promotional tile
-- promo-tile-large.png: 920x680 pixels - Large promotional tile  
+- promo-tile-large.png: 920x680 pixels - Large promotional tile
 - promo-marquee.png: 1400x560 pixels - Marquee promotional image
 
 ### Store Description:
